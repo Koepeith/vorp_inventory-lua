@@ -1371,19 +1371,19 @@ end
 
 exports("registerInventory", InventoryAPI.registerInventory)
 
-local function canContinue(id, jobName, grade, charid)
+--**FUNCION NUEVA EDITADA POR KOE (FX-STASH)
+local function canContinue(id)
 	if not CustomInventoryInfos[id] then
-		return false
+			return false
 	end
 
 	if not CustomInventoryInfos[id]:isPermEnabled() then
-		return false
+			return false
 	end
 
-	if not jobName and not grade and not charid then
-		return false
-	end
-
+	-- if not jobName and not grade then -- best code block for outsider xd
+	--     return false
+	-- end
 	return true
 end
 --- *add permissions to move items to custom inventory by jobs or an charids

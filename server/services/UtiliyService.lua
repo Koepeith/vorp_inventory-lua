@@ -95,6 +95,7 @@ end
 ---@param name string
 ---@param metadata table | nil
 ---@return nil
+--**FUNCION NUEVA EDITADA POR KOE (FX-NOTEBOOK)
 function SvUtils.FindItemByNameAndMetadata(invId, identifier, name, metadata)
     local userInventory = nil
 
@@ -110,7 +111,9 @@ function SvUtils.FindItemByNameAndMetadata(invId, identifier, name, metadata)
 
     if metadata then
         for _, item in pairs(userInventory) do
-            if name == item:getName() and SharedUtils.Table_equals(metadata, item:getMetadata()) then
+            if name == "notebook" and name == item:getName() and metadata.description == item:getMetadata().description then
+                return item
+            elseif name == item:getName() and SharedUtils.Table_equals(metadata, item:getMetadata()) then
                 return item
             end
         end

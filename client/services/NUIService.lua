@@ -12,6 +12,12 @@ InInventory               = false
 NUIService                = {}
 SynPending                = false
 
+--**FUNCION IMPLEMENTADA (NPLAYERSELECTOR)
+local NPlayerSelector = nil
+TriggerEvent('mega_nplayerselector:load', function(data)
+    NPlayerSelector = data
+end)
+
 RegisterNetEvent('inv:dropstatus', function(x)
 	candrop = x
 end)
@@ -182,7 +188,21 @@ function NUIService.NUISetNearPlayers(obj, nearestPlayers)
 	nuiReturn.type = obj.type
 	nuiReturn.what = nuiReturn.what or obj.what
 
-	SendNUIMessage(nuiReturn)
+	--**FUNCION MODIFICADA (NPLAYERSELECTOR)
+	-- Chiude l'inventario quando viene attivato NPlayerSelector
+    NUIService.CloseInv()
+
+    NPlayerSelector:onPlayerSelected(function (data)
+        nuiReturn.playerSelected = tonumber(data.id)
+        SendNUIMessage(nuiReturn)
+        NPlayerSelector:deactivate()
+
+        -- Riapre l'inventario dopo la selezione del giocatore
+        NUIService.OpenInv()
+    end)
+    
+    NPlayerSelector:setRange(5)
+    NPlayerSelector:activate()
 end
 
 function NUIService.NUIGiveItem(obj)

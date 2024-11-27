@@ -20,9 +20,9 @@ Config = {
 	-- GOLD ITEM LIKE DOLLARS
 	UseRolItem               = false, -- to show rol in inventory
 
-	UseGoldItem              = false,
+	UseGoldItem              = true,
 
-	AddGoldItem              = false,   -- Should there be an item in inventory to represent gold
+	AddGoldItem              = true,   -- Should there be an item in inventory to represent gold
 
 	AddDollarItem            = true,    -- Should there be an item in inventory to represent dollars
 
@@ -54,22 +54,22 @@ Config = {
 	OnPlayerRespawn          = {
 		Money = {
 			JobLock         = { "police", "doctor" }, -- wont remove from these jobs
-			ClearMoney      = true,          -- if true then removes all money from player
+			ClearMoney      = false,          -- if true then removes all money from player
 			MoneyPercentage = false,         -- if false wont use percentage if you add number   0.1 = 10% of money user have instead of all
 		},
 		Items = {
 			JobLock       = { "police", "doctor" },
 			itemWhiteList = { "consumable_raspberrywater", "ammorevolvernormal" }, -- dont delete these items
-			AllItems      = true,                                         -- if true then removes all items from player
+			AllItems      = false,                                         -- if true then removes all items from player
 		},
 		Weapons = {
 			JobLock           = { "police", "doctor" },
 			WeaponWhitelisted = { "WEAPON_MELEE_KNIFE", "WEAPON_BOW" }, -- dont delete these weapons
-			AllWeapons        = true,                          -- if true then removes all weapons from player
+			AllWeapons        = false,                          -- if true then removes all weapons from player
 		},
 		Ammo = {
 			JobLock = { "police", "doctor" }, -- wont remove from these jobs
-			AllAmmo = true,          -- if true then removes all ammo from player
+			AllAmmo = false,          -- if true then removes all ammo from player
 		},
 		Gold = {
 			JobLock        = { "police", "doctor" },

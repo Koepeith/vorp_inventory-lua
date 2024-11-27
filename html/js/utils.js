@@ -152,33 +152,13 @@ function validatePlayerSelection(player) {
     objToGive = {};
 }
 
+// --FUNCION MODIFICADA (NPLAYERSELECTOR)
 /**
  * @param {object} data
  }**/
 function selectPlayerToGive(data) {
-    $("#disabler").show();
     objToGive = data; // save obj to give during process
-    const characters = data.players;
-
-    $("#character-select-title").html(LANGUAGE.toplayerpromptitle);
-    characters.sort((a, b) =>
-        a.label.toString().localeCompare(b.label.toString())
-    );
-
-    $("#character-list").html("");
-    characters.forEach((character) => {
-        $("#character-list").append(
-            `<li class="list-item" id="character-${character.player}" data-player="${character.player}" onclick="validatePlayerSelection(${character.player})">${character.label}</li>`
-        );
-    });
-    $("#character-selection").show();
-}
-
-function closeCharacterSelection() {
-    // reset obj to give, for security
-    objToGive = {};
-    $("#disabler").hide();
-    $("#character-selection").hide();
+    validatePlayerSelection(data.playerSelected)
 }
 
 function dropGetHowMany(item, type, hash, id, metadata, count) {
