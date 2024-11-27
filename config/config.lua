@@ -54,25 +54,6 @@ Config = {
 
 	OnPlayerRespawn          = {
 		Money = {
-<<<<<<< HEAD
-			JobLock         = { "police", "doctor" }, -- wont remove from these jobs
-			ClearMoney      = false,          -- if true then removes all money from player
-			MoneyPercentage = false,         -- if false wont use percentage if you add number   0.1 = 10% of money user have instead of all
-		},
-		Items = {
-			JobLock       = { "police", "doctor" },
-			itemWhiteList = { "consumable_raspberrywater", "ammorevolvernormal" }, -- dont delete these items
-			AllItems      = false,                                         -- if true then removes all items from player
-		},
-		Weapons = {
-			JobLock           = { "police", "doctor" },
-			WeaponWhitelisted = { "WEAPON_MELEE_KNIFE", "WEAPON_BOW" }, -- dont delete these weapons
-			AllWeapons        = false,                          -- if true then removes all weapons from player
-		},
-		Ammo = {
-			JobLock = { "police", "doctor" }, -- wont remove from these jobs
-			AllAmmo = false,          -- if true then removes all ammo from player
-=======
 			JobLock         = { "police", "doctor" }, -- Wont remove from these jobs
 			ClearMoney      = true,          -- If true then removes all money from player
 			MoneyPercentage = false,         -- If false wont use percentage if you add number   0.1 = 10% of money user have instead of all
@@ -90,7 +71,6 @@ Config = {
 		Ammo = {
 			JobLock = { "police", "doctor" }, -- Wont remove from these jobs
 			AllAmmo = true,          -- If true then removes all ammo from player
->>>>>>> main
 		},
 		Gold = {
 			JobLock        = { "police", "doctor" },
