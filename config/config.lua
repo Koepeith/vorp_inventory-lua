@@ -21,7 +21,7 @@ Config = {
 	-- GOLD ITEM LIKE DOLLARS
 	UseRolItem                 = false, -- To show rol in inventory
 
-	UseGoldItem                = false,
+	UseGoldItem                = true,
 
 	AddGoldItem                = false,   -- Should there be an item in inventory to represent gold
 
@@ -103,12 +103,13 @@ Config = {
 
 	-- FIRST JOIN
 	startItems                 = {
-		consumable_raspberrywater = 2, -- ITEMS SAME NAME AS IN DATABASE
+		bread = 5, -- ITEMS SAME NAME AS IN DATABASE
+		water = 5,   -- ITEMS SAME NAME AS IN DATABASE
 		ammorevolvernormal = 1   -- AMMO SAME NAME AS IN THE DATABASE
 	},
 
 	startWeapons               = {
-		"WEAPON_MELEE_KNIFE" -- WEAPON HASH NAME
+		"WEAPON_REVOLVER_CATTLEMAN" -- WEAPON HASH NAME
 	},
 
 	-- Items that dont get added up torwards your max weapon count
