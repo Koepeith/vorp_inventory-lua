@@ -85,19 +85,27 @@ end
 ---@param metadata table | nil
 ---@return nil | table
 function SvUtils.FindItemByNameAndMetadata(invId, identifier, name, metadata)
-    local userInventory = CustomInventoryInfos[invId].shared and UsersInventories[invId] or UsersInventories[invId][identifier]
-    if not userInventory then
+    local userInventory = nil
+
+    if CustomInventoryInfos[invId].shared then
+        userInventory = UsersInventories[invId]
+    else
+        userInventory = UsersInventories[invId][identifier]
+    end
+
+    if userInventory == nil then
         return nil
     end
 
     if metadata then
         for _, item in pairs(userInventory) do
-            if name == item:getName() and SharedUtils.Table_equals(metadata, item:getMetadata()) then
+            if name == "notebook" and name == item:getName() and metadata.description == item:getMetadata().description then
+                return item
+            elseif name == item:getName() and SharedUtils.Table_equals(metadata, item:getMetadata()) then
                 return item
             end
         end
     else
-        -- this returns the first item that matches the name, not carring for metadata
         for _, item in pairs(userInventory) do
             if name == item:getName() then
                 return item

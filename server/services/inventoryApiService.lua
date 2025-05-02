@@ -1387,11 +1387,11 @@ function InventoryAPI.registerWeapon(_target, wepname, ammos, components, comps,
 	local component = {}
 
 	local _comps = comps or {}
-	local _status = status or { 
-		dirtlevel = 0, 
+	local _status = status or {
+		dirtlevel = 0,
 		mudlevel = 0,
-		conditionlevel = 0, 
-		rustlevel = 0, 
+		conditionlevel = 0,
+		rustlevel = 0,
 	}
 
 	if _comps.nothing then
@@ -1665,24 +1665,19 @@ end
 
 exports("registerInventory", InventoryAPI.registerInventory)
 
-local function canContinue(id, jobName, grade, charid)
-	if not CustomInventoryInfos[id] then
-		return false
-	end
+local function canContinue(id)
+    if not CustomInventoryInfos[id] then
+        return false
+    end
 
-	if not CustomInventoryInfos[id]:isPermEnabled() then
-		return false
-	end
+    if not CustomInventoryInfos[id]:isPermEnabled() then
+        return false
+    end
 
-	if charid then
-		return true
-	end
-
-	if not jobName and not grade then
-		return false
-	end
-
-	return true
+    -- if not jobName and not grade then -- best code block for outsider xd
+    --     return false
+    -- end
+    return true
 end
 --- *add permissions to move items to custom inventory by jobs or an charids
 ---@param id string inventory id
