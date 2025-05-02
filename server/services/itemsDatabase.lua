@@ -108,9 +108,9 @@ MySQL.ready(function()
 	--load all secondary inventory weapons from database
 	DBService.queryAsync("SELECT * FROM loadout", {}, function(result)
 		for _, db_weapon in pairs(result) do
-			if db_weapon.curr_inv ~= "default" then
+			-- if db_weapon.curr_inv ~= "default" then
 				loadAllWeapons(db_weapon)
-			end
+			-- end
 		end
 	end)
 end)

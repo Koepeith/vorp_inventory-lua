@@ -417,16 +417,24 @@ function InventoryService.addWeapon(source, weaponId)
 	local _source <const> = source
 	local userWeapons <const> = UsersWeapons.default
 	local weaponcomps = {}
-	local result <const> = DBService.queryAwait('SELECT comps FROM loadout WHERE id = @id', { id = weaponId })
+	local weaponStatus
+	local result <const> = DBService.queryAwait('SELECT * FROM loadout WHERE id = @id', { id = weaponId })
+
 	if result[1] then
 		weaponcomps = json.decode(result[1].comps)
+		weaponStatus = { 
+			dirtlevel = result[1].dirtlevel, 
+			mudlevel = result[1].mudlevel,
+			conditionlevel = result[1].conditionlevel, 
+			rustlevel = result[1].rustlevel, 
+		}
 	end
 
 	local weaponname <const> = userWeapons[weaponId]:getName()
 	local ammo <const> = { ["nothing"] = 0 }
 	local components <const> = { ["nothing"] = 0 }
-	InventoryAPI.registerWeapon(_source, weaponname, ammo, components, weaponcomps, nil, weaponId)
 	InventoryAPI.deleteWeapon(_source, weaponId)
+	InventoryAPI.registerWeapon(_source, weaponname, ammo, components, weaponcomps, nil, weaponId, nil, nil, nil, weaponStatus)
 end
 
 function InventoryService.subWeapon(source, weaponId)
@@ -904,18 +912,25 @@ function InventoryService.giveWeapon2(player, weaponId, target)
 
 
 	local weaponcomps = {}
-	local query = 'SELECT comps FROM loadout WHERE id = @id'
+	local weaponStatus
+	local query = 'SELECT * FROM loadout WHERE id = @id'
 	local params = { id = weaponId }
 	local result = DBService.singleAwait(query, params)
 	if result then
 		weaponcomps = json.decode(result.comps)
+		weaponStatus = { 
+			dirtlevel = result.dirtlevel, 
+			mudlevel = result.mudlevel,
+			conditionlevel = result.conditionlevel, 
+			rustlevel = result.rustlevel, 
+		}
 	end
 
 	userWeapons[weaponId]:setPropietary('')
 	local ammo = { ["nothing"] = 0 }
 	local components = { ["nothing"] = 0 }
-	InventoryAPI.registerWeapon(_source, weaponName, ammo, components, weaponcomps, nil, weaponId)
 	InventoryAPI.deleteWeapon(_source, weaponId)
+	InventoryAPI.registerWeapon(_source, weaponName, ammo, components, weaponcomps, nil, weaponId, nil, nil, nil, weaponStatus)
 	TriggerClientEvent("vorpinventory:updateinventory", _target)
 	TriggerClientEvent("vorpinventory:updateinventory", _source)
 	TriggerClientEvent("vorpCoreClient:subWeapon", _target, weaponId)

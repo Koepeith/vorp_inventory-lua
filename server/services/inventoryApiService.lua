@@ -1352,7 +1352,7 @@ function InventoryAPI.deleteWeapon(player, weaponid, cb)
 	userWeapons[weaponid]:setPropietary('')
 	local query = 'DELETE FROM loadout WHERE id = @id'
 	local params = { id = weaponid }
-	DBService.deleteAsync(query, params, function(r) end)
+	local result = DBService.singleAwait(query, params)
 	return respond(cb, true)
 end
 
@@ -1369,7 +1369,7 @@ exports("deleteWeapon", InventoryAPI.deleteWeapon)
 ---@param customSerial string | nil? custom serial number
 ---@param customLabel string | nil? custom label
 ---@return nil | boolean
-function InventoryAPI.registerWeapon(_target, wepname, ammos, components, comps, cb, wepId, customSerial, customLabel, customDesc)
+function InventoryAPI.registerWeapon(_target, wepname, ammos, components, comps, cb, wepId, customSerial, customLabel, customDesc, status)
 	local targetUser = Core.getUser(_target)
 	if not targetUser then
 		return respond(cb, nil)
@@ -1386,8 +1386,20 @@ function InventoryAPI.registerWeapon(_target, wepname, ammos, components, comps,
 	local ammo = {}
 	local component = {}
 
-	if not comps then
-		comps = {}
+	local _comps = comps or {}
+	local _status = status or { 
+		dirtlevel = 0, 
+		mudlevel = 0,
+		conditionlevel = 0, 
+		rustlevel = 0, 
+	}
+
+	if _comps.nothing then
+		_comps = {}
+	end
+
+	if components and not components.nothing and not comps then
+		_comps = components
 	end
 
 	if ammos then
@@ -1441,15 +1453,23 @@ function InventoryAPI.registerWeapon(_target, wepname, ammos, components, comps,
 	local label = customLabel or hasCustomLabel() or SvUtils.GenerateWeaponLabel(name)
 	local desc = customDesc or hasCustomDesc()
 	local weight = SvUtils.GetWeaponWeight(name)
-	local query = 'INSERT INTO loadout (identifier, charidentifier, name, ammo,components,comps,label,serial_number,custom_label,custom_desc) VALUES (@identifier, @charid, @name, @ammo, @components,@comps,@label,@serial_number,@custom_label,@custom_desc)'
+	local query = 'INSERT INTO loadout (identifier, charidentifier, name, ammo, components, comps, label, dirtlevel, mudlevel, conditionlevel, rustlevel, serial_number, custom_label, custom_desc) VALUES (@identifier, @charid, @name, @ammo, @components, @comps, @label, @dirtlevel, @mudlevel, @conditionlevel, @rustlevel, @serial_number, @custom_label, @custom_desc)'
+	if wepId then
+		query = 'INSERT INTO loadout (id, identifier, charidentifier, name, ammo, components, comps, label, dirtlevel, mudlevel, conditionlevel, rustlevel, serial_number, custom_label, custom_desc) VALUES (@id, @identifier, @charid, @name, @ammo, @components, @comps, @label, @dirtlevel, @mudlevel, @conditionlevel, @rustlevel, @serial_number, @custom_label, @custom_desc)'
+	end
 	local params = {
+		id = wepId,
 		identifier = targetIdentifier,
 		charid = targetCharId,
 		name = name,
 		label = SvUtils.GenerateWeaponLabel(name),
 		ammo = json.encode(ammo),
 		components = json.encode(component),
-		comps = json.encode(comps),
+		comps = json.encode(_comps),
+		dirtlevel = _status.dirtlevel,
+		mudlevel = _status.mudlevel,
+		conditionlevel = _status.conditionlevel,
+		rustlevel = _status.rustlevel,
 		custom_label = label,
 		serial_number = serialNumber,
 		custom_desc = desc,
