@@ -38,28 +38,6 @@ function Utils.oldUseWeapon(id)
 	TriggerServerEvent("vorpinventory:setUsedWeapon", id, UserWeapons[id]:getUsed(), UserWeapons[id]:getUsed2())
 end
 
-function Utils.addItems(name, id, amount)
-	if next(UserInventory[id]) ~= nil then
-		UserInventory[id]:addCount(amount)
-	else
-		UserInventory[id] = Item:New({
-			id = id,
-			count = amount,
-			name = name,
-			limit = ClientItems[name].limit,
-			label = ClientItems[name].label,
-			type = "item_standard",
-			canUse = true,
-			canRemove = ClientItems[name].can_remove,
-			desc = ClientItems[name].desc,
-			group = ClientItems[name].group or 1,
-			weight = ClientItems[name].weight or 0.25,
-			degradation = ClientItems[name].degradation or 0,
-			maxDegradation = ClientItems[name].maxDegradation or 0
-		})
-	end
-end
-
 function Utils.expandoProcessing(object)
 	local _obj = {}
 	for _, row in pairs(object) do
@@ -126,11 +104,25 @@ function Utils.GetAmmoLabel(ammo)
 		return false
 	end
 
-	for key, value in pairs(SharedData.AmmoLabels) do
+	for _, value in pairs(SharedData.AmmoLabels) do
 		if joaat(value) == ammo then
 			return value
 		end
 	end
+end
+
+local function getItemData(item)
+	return {
+		label = item:getMetadata().label or item:getLabel(),
+		count = item:getCount(),
+		limit = item:getLimit(),
+		weight = item:getMetadata().weight or item:getWeight(),
+		metadata = item:getMetadata(),
+		name = item:getName(),
+		desc = item:getMetadata().description or item:getDesc(),
+		degradation = item:getDegradation(),
+		maxDegradation = item:getMaxDegradation(),
+	}
 end
 
 function Utils.GetInventoryItem(name)
@@ -140,17 +132,7 @@ function Utils.GetInventoryItem(name)
 
 	for _, item in pairs(UserInventory) do
 		if name == item:getName() then
-			return {
-				label = item:getLabel(),
-				count = item:getCount(),
-				limit = item:getLimit(),
-				weight = item:getWeight(),
-				metadata = item:getMetadata(),
-				name = item:getName(),
-				desc = item:getDesc(),
-				degradation = item:getDegradation(),
-				maxDegradation = item:getMaxDegradation()
-			}
+			return getItemData(item)
 		end
 	end
 
@@ -163,17 +145,7 @@ function Utils.GetInventoryItems()
 	end
 	local items = {}
 	for _, item in pairs(UserInventory) do
-		table.insert(items, {
-			label = item:getLabel(),
-			count = item:getCount(),
-			limit = item:getLimit(),
-			weight = item:getWeight(),
-			metadata = item:getMetadata(),
-			name = item:getName(),
-			desc = item:getDesc(),
-			degradation = item:getDegradation(),
-			maxDegradation = item:getMaxDegradation()
-		})
+		table.insert(items, getItemData(item))
 	end
 	return items
 end
@@ -201,4 +173,26 @@ end
 
 function Utils.filterWeaponsSerialNumber(name)
 	return Config.noSerialNumber[name]
+end
+
+function Utils.GetServerItem(data)
+	if not data then
+		return false
+	end
+
+	if type(data) == "string" then
+		return ClientItems[data]
+	end
+
+	if type(data) == "table" then
+		local items = {}
+		for _, item in ipairs(data) do
+			if ClientItems[item] then
+				table.insert(items, ClientItems[item])
+			end
+		end
+		return items
+	end
+
+	return false
 end

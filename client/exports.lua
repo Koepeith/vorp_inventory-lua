@@ -39,3 +39,7 @@ end)
 exports('getInventoryItems', function()
     return Utils.GetInventoryItems()
 end)
+
+exports("getServerItem", function(data)
+    return Utils.GetServerItem(data)
+end)
