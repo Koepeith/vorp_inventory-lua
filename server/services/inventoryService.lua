@@ -73,20 +73,22 @@ function InventoryService.UseItem(data)
 	if arguments.item.isDegradable then
 		local isExpired = item:isItemExpired()
 		if isExpired then
-			local text = "Item is expired and can't be used"
-			if Config.DeleteItemOnUseWhenExpired then
-				InventoryAPI.subItemID(_source, item:getId())
-				text = "Item is expired and can't be used, item was removed from your inventory"
+			local canUseExpired = arguments.item.metadata?.useExpired or ServerItems[itemName]?.useExpired
+			if not canUseExpired then
+				local text = "Item is expired and can't be used"
+				if Config.DeleteItemOnUseWhenExpired then
+					InventoryAPI.subItemID(_source, item:getId())
+					text = "Item is expired and can't be used, item was removed from your inventory"
+				end
+				Core.NotifyRightTip(_source, text, 3000)
+				return
 			end
-			Core.NotifyRightTip(_source, text, 3000)
-			return
 		end
 	end
 
 	TriggerEvent("vorp_inventory:Server:OnItemUse", arguments)
 
 	local success <const>, result <const> = pcall(UsableItemsFunctions[itemName], arguments)
-
 	if not success then
 		return print("Function call failed with error:", result, "a usable item :", itemName, " have an error in the callback function")
 	end
@@ -242,10 +244,15 @@ function InventoryService.setWeaponBullets(weaponId, type, amount)
 	end
 end
 
-function InventoryService.usedWeapon(id, _used, _used2)
+function InventoryService.usedWeapon(id, used, used2)
 	local query <const> = 'UPDATE loadout SET used = @used, used2 = @used2 WHERE id = @id'
-	local params <const> = { used = _used and 1 or 0, used2 = _used2 and 1 or 0, id = id }
+	local params <const> = { used = used and 1 or 0, used2 = used2 and 1 or 0, id = id }
 	DBService.updateAsync(query, params)
+	local userWeapons <const> = UsersWeapons.default
+	if userWeapons[id] then
+		userWeapons[id]:setUsed(used)
+		userWeapons[id]:setUsed2(used2)
+	end
 end
 
 function InventoryService.subItem(source, invId, itemId, amount)
@@ -1093,7 +1100,8 @@ function InventoryService.getItemsTable()
 
 	if ServerItems then
 		local data = msgpack.pack(ServerItems)
-		TriggerClientEvent("vorpInventory:giveItemsTable", _source, data)
+		-- some people have thousands of items so use latent events.
+		TriggerLatentClientEvent("vorpInventory:giveItemsTable", _source, 500000, data)
 	end
 end
 
@@ -1236,8 +1244,8 @@ function InventoryService.serverGiveAmmo(ammotype, amount, target, maxcount)
 	local query = "UPDATE characters Set ammo=@ammo WHERE charidentifier=@charidentifier"
 	local params = { charidentifier = charidentifier, ammo = json.encode(AmmoData[_source].ammo) }
 	local params2 = { charidentifier = charidentifier2, ammo = json.encode(AmmoData[target].ammo) }
-	DBService.updateAsync(query, params, function(r) end)
-	DBService.updateAsync(query, params2, function(r) end)
+	DBService.updateAsync(query, params)
+	DBService.updateAsync(query, params2)
 
 	TriggerClientEvent("vorpinventory:updateuiammocount", _source, AmmoData[_source].ammo)
 	TriggerClientEvent("vorpinventory:updateuiammocount", target, AmmoData[target].ammo)
@@ -1680,6 +1688,7 @@ function InventoryService.MoveToCustom(obj)
 			end
 			local metadataLabel = item.metadata?.label or item.label
 			InventoryService.subItem(_source, "default", item.id, amount)
+			TriggerEvent("vorp_inventory:Server:OnItemMovedToCustomInventory", { id = item.id, name = item.name, amount = amount }, invId, _source)
 			TriggerClientEvent("vorpInventory:removeItem", _source, item.name, item.id, amount)
 			Core.NotifyRightTip(_source, T.movedToStorage .. " " .. amount .. " " .. metadataLabel, 2000)
 
@@ -1782,6 +1791,7 @@ function InventoryService.TakeFromCustom(obj)
 				return Core.NotifyObjective(_source, T.cantRemoveItem, 2000)
 			end
 
+			TriggerEvent("vorp_inventory:Server:OnItemTakenFromCustomInventory", { id = itemAdded:getId(), name = item.name, amount = amount }, invId, _source)
 			TriggerClientEvent("vorpInventory:receiveItem", _source, item.name, itemAdded:getId(), amount, itemAdded:getMetadata(), itemAdded:getDegradation(), itemAdded:getPercentage())
 			InventoryService.reloadInventory(_source, invId)
 			InventoryService.DiscordLogs(invId, item.name, amount, sourceName, "Take")

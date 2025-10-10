@@ -403,6 +403,8 @@ local function useWeapon(data)
 		local key = string.format("GetEquippedWeaponData_%d", weapName)
 		LocalPlayer.state:set(key, info, true)
 	end
+	TriggerServerEvent("vorpinventory:setUsedWeapon", weaponId, UserWeapons[weaponId]:getUsed(), UserWeapons[weaponId]:getUsed2())
+
 	NUIService.LoadInv()
 end
 
@@ -411,7 +413,7 @@ exports("useWeapon", useWeapon)
 local function useItem(data)
 	if timerUse <= 0 then
 		TriggerServerEvent("vorp_inventory:useItem", data)
-		timerUse = 2000
+		timerUse = Config.SpamDelay
 	else
 		Core.NotifyRightTip(T.slow, 5000)
 	end
@@ -429,7 +431,9 @@ exports("useItem", useItem) -- not tested yet
 
 
 function NUIService.NUISound()
-	PlaySoundFrontend("BACK", "RDRO_Character_Creator_Sounds", true, 0)
+	if Config.SFX.ItemHover then
+		PlaySoundFrontend("BACK", "RDRO_Character_Creator_Sounds", true, 0)
+	end
 end
 
 function NUIService.NUIFocusOff()
@@ -437,9 +441,12 @@ function NUIService.NUIFocusOff()
 		AnimpostfxStop(Config.Filter)
 	end
 	DisplayRadar(true)
-	PlaySoundFrontend("SELECT", "RDRO_Character_Creator_Sounds", true, 0)
+	if Config.SFX.CloseInventory then
+		PlaySoundFrontend("SELECT", "RDRO_Character_Creator_Sounds", true, 0)
+	end
 	NUIService.CloseInv()
 end
+
 local function loadItems()
 	local items = {}
 	if not StoreSynMenu then
@@ -454,7 +461,7 @@ local function loadItems()
 			end
 		end
 
-		
+
 		local buyitems = GenSynInfo.buyitems
 		if buyitems and next(buyitems) then
 			for _, item in pairs(UserInventory) do
@@ -542,7 +549,7 @@ function NUIService.LoadInv()
 
 	Core.Callback.TriggerAsync("vorpinventory:get_slots", function(result)
 		if not result then return end
-		
+
 		SendNUIMessage({ action = "changecheck", check = string.format("%.1f", result.totalInvWeight), info = string.format("%.1f", result.slots) })
 		SendNUIMessage({
 			action = "updateStatusHud",
@@ -564,7 +571,9 @@ end
 function NUIService.OpenInv()
 	ApplyPosfx()
 	DisplayRadar(false)
-	PlaySoundFrontend("SELECT", "RDRO_Character_Creator_Sounds", true, 0)
+	if Config.SFX.OpenInventory then
+		PlaySoundFrontend("SELECT", "RDRO_Character_Creator_Sounds", true, 0)
+	end
 	SetNuiFocus(true, true)
 	SendNUIMessage({
 		action = "display",
@@ -615,6 +624,7 @@ function NUIService.initiateData()
 			use = T.use,
 			give = T.give,
 			drop = T.drop,
+			copyserial = T.copyserial,
 			labels = T.labels
 		},
 		config = {
@@ -721,9 +731,9 @@ function NUIService.ContextMenu(data)
 		NUIService.CloseInv()
 	end
 
-	if data.event.client then
-		TriggerEvent(data.event.client, data.arguments)
-	elseif data.event.server then
-		TriggerServerEvent(data.event.server, data.arguments)
+	if data.event?.client then
+		TriggerEvent(data.event.client, data.event?.arguments, data.itemid)
+	elseif data.event?.server then
+		TriggerServerEvent(data.event.server, data.event?.arguments, data.itemid)
 	end
 end

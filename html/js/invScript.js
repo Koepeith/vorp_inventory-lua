@@ -384,13 +384,28 @@ function addData(index, item) {
                 );
             },
         });
+        if (Config.EnableCopySerial && item.type == "item_weapon" && item.serial_number) {
+            data.push({
+                text: LANGUAGE.copyserial,
+                action: function () {
+                    const clipElem = document.createElement('textarea');
+                    clipElem.value = item.serial_number;
+                    document.body.appendChild(clipElem);
+                    clipElem.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(clipElem);
+                },
+            });
+        }
     }
+
 
     if (item.metadata?.context) {
         item.metadata.context.forEach(option => {
             data.push({
                 text: option.text,
                 action: function () {
+                    option.itemid = item.id;
                     $.post(`https://${GetParentResourceName()}/ContextMenu`,
                         JSON.stringify(option)
                     );
