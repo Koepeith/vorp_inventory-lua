@@ -107,7 +107,7 @@ Config = {
 
 	-- HOW MANY WEAPONS ALLOWED PER PLAYER FOR ITEMS IS IN VORP CORE CONFIG
 	MaxItemsInInventory        = {
-		Weapons = 6,
+		Weapons = 7,
 	},
 
 	-- HERE YOU CAN SET THE MAX AMOUNT OF WEAPONS PER JOB (IF YOU WANT)
